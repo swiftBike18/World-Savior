@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace World_Savior
 {
-    class Mask
+    class Mask : Form1
     {
         public Direction direction;
         public int speed = 20; 
@@ -52,7 +52,7 @@ namespace World_Savior
             {
                 mask.Top += speed; 
             }
-            if (mask.Left < 16 || mask.Left > 860 || mask.Top < 10 || mask.Top > 616)
+            if (mask.Left < 1 || mask.Left > Size.Width  || mask.Top < 1 || mask.Top > Size.Height)
             {
                 tm.Stop(); 
                 tm.Dispose(); 

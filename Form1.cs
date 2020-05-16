@@ -13,10 +13,11 @@ namespace World_Savior
     public partial class Form1 : Form
     {
         int score = 0; 
-        bool gameOver = false; 
+        bool gameOver = false;
+        bool firstAidOnField;
         Random random = new Random(); 
-        Player newPlayer = new Player(100, 20,15);
-        Virus newVirus = new Virus(5);
+        Player newPlayer = new Player(100, 10,10);
+        Virus newVirus = new Virus(2);
 
         public Form1()
         {
@@ -80,7 +81,7 @@ namespace World_Savior
                         newPlayer.masksQuantity--;
                         ThrowMask(newPlayer.direction);
                         if (newPlayer.masksQuantity < 1)
-                            DropFirstAidKit();
+                            DropMoreMasks();
                     }
                     break;
             }
@@ -94,7 +95,7 @@ namespace World_Savior
             }
             else
             {
-                player.Image = newPlayer.InfectedImage; 
+                player.Image = newPlayer.ChooseImage(); 
                 timer1.Stop(); 
                 gameOver = true; 
             }
@@ -124,6 +125,13 @@ namespace World_Savior
                 player.Top += newPlayer.Speed;
             }
 
+            if ((newPlayer.Health < 30)&&(!firstAidOnField))
+            {
+                DropFirstAidKit();
+                firstAidOnField = true;
+
+            }
+
             foreach (Control x in this.Controls)
             {
                 if (x is PictureBox)
@@ -135,42 +143,28 @@ namespace World_Savior
                             {
                                 this.Controls.Remove(x);
                                 x.Dispose();
+                                newPlayer.Health += 30;
+                                firstAidOnField = false;
+                            }
+                            break;
+
+                        case "MoreMasks":
+                            if (x.Bounds.IntersectsWith(player.Bounds))
+                            {
+                                this.Controls.Remove(x);
+                                x.Dispose();
                                 newPlayer.masksQuantity += 5;
                             }
                             break;
-                    
+
                         case "mask":
                             if (x.Left < 1 || x.Left > Size.Width || x.Top < 10 || x.Top > Size.Height)
                                  this.Controls.Remove(x);
                              break;
 
                         case "virus":
-                            if (x.Bounds.IntersectsWith(player.Bounds))
-                            {
-                                newPlayer.Health -= 1;
-                            }
-
-                            if (x.Left > player.Left)
-                            {
-                                x.Left -= newVirus.Speed;
-                            }
-
-                            if (x.Top > player.Top)
-                            {
-                                x.Top -= newVirus.Speed;
-                            }
-
-                            if (x.Left < player.Left)
-                            {
-                                x.Left += newVirus.Speed;
-                            }
-
-                            if (x.Top < player.Top)
-                            {
-                                x.Top += newVirus.Speed;
-                            }
+                            MoveVirus(x);
                             break;
-
                     }
                 }
 
@@ -192,6 +186,33 @@ namespace World_Savior
             }
         }
 
+        public void MoveVirus(Control x)
+        {
+            if (x.Bounds.IntersectsWith(player.Bounds))
+            {
+                newPlayer.Health -= 1;
+            }
+
+            if (x.Left > player.Left)
+            {
+                x.Left -= newVirus.Speed;
+            }
+
+            if (x.Top > player.Top)
+            {
+                x.Top -= newVirus.Speed;
+            }
+
+            if (x.Left < player.Left)
+            {
+                x.Left += newVirus.Speed;
+            }
+
+            if (x.Top < player.Top)
+            {
+                x.Top += newVirus.Speed;
+            }
+        }
         private void DropFirstAidKit()
         {
             PictureBox firstAid = new PictureBox();
@@ -203,6 +224,19 @@ namespace World_Savior
             this.Controls.Add(firstAid);
             firstAid.BringToFront(); 
             player.BringToFront(); 
+        }
+
+        private void DropMoreMasks()
+        {
+            PictureBox moreMasks = new PictureBox();
+            moreMasks.Image = Properties.Resources.mask;
+            moreMasks.SizeMode = PictureBoxSizeMode.Zoom;
+            moreMasks.Left = random.Next(0, Size.Width - 100);
+            moreMasks.Top = random.Next(0, Size.Height - 100);
+            moreMasks.Tag = "MoreMasks";
+            this.Controls.Add(moreMasks);
+            moreMasks.BringToFront();
+            player.BringToFront();
         }
 
         private void ThrowMask(Direction direct)

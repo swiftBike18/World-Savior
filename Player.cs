@@ -15,7 +15,6 @@ namespace World_Savior
         public int Speed { get; set; }
         public Direction direction { get; set ; }
         public int masksQuantity { get; set; }
-        public Image InfectedImage  = Properties.Resources.infected;
         public bool goUp;
         public bool goDown;
         public bool goLeft;
@@ -23,6 +22,8 @@ namespace World_Savior
 
         public Image ChooseImage()
         {
+            if (Health<2)
+                return Properties.Resources.infected;
             switch (direction)
             {
                 case Direction.Down:
